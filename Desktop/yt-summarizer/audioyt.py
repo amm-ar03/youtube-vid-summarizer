@@ -6,7 +6,7 @@ import youtube_dl
 import openai
 from youtube_dl.utils import DownloadError
 
-api_key=os.environ.get(openai.env)
+api_key=os.environ.get("openai")
 
 def get_audio_files(path, extension=".mp3"):
     audio_files = []
