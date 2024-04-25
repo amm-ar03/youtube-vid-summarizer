@@ -6,8 +6,9 @@ import youtube_dl
 import openai
 from youtube_dl.utils import DownloadError
 
-api_key=os.environ.get("openai")
+api_key=os.environ.get("openai") #in here you generally enter the API key
 
+#checks for audio files ending in .mp3 & adds it to your folder
 def get_audio_files(path, extension=".mp3"):
     audio_files = []
     for root, dirs, files in os.walk(path):
@@ -47,6 +48,7 @@ def youtube_mp3(youtube_url: str, output_dir: str ) -> str:
     audio_filename = get_audio_files(output_dir)[0]
     return audio_filename
 
+#splits the audio into pieces to make transcribing easier
 def chunk_audio(filename, segment_length: int, output_dir):
 
     print(f"Chunking audio to {segment_length} second segments...")
@@ -70,6 +72,7 @@ def chunk_audio(filename, segment_length: int, output_dir):
         chunked_audio_files = get_audio_files(output_dir)
         return sorted(chunked_audio_files)
     
+#using the whisper model, we convert the audio(.mp3) into text   
 def transcribe_audio(audio_files: list, output_file=None, model = "whisper-1") -> list:
 
     print("converting audio to text")
@@ -88,6 +91,7 @@ def transcribe_audio(audio_files: list, output_file=None, model = "whisper-1") -
                 
     return transcript
 
+#this function helps us later on to summarize the transcribed audio using ChatGPT
 def summarize_yt(chunks: list[str], system_prompt: str, model="gpt-3.5-turbo", output_file=None):
 
     print(f"Summarizing with {model=}")
@@ -111,6 +115,9 @@ def summarize_yt(chunks: list[str], system_prompt: str, model="gpt-3.5-turbo", o
 
     return summaries
 
+#finally bringing everything together, we specify paths for different files
+#we use in this project. pre-loaded prompts to ChatGPT to summarize the text for us
+#into a long summary and a short summary
 def summary_yt(youtube_url, output_dir):
     raw_audio_dir = f"{output_dir}/raw_audio/"
     chunks_dir = f"{output_dir}/chunks_audio"
